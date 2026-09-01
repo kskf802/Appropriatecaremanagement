@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>適切なケアマネジメント手法項目一覧表 | ケアプランAI</title>
+  
+  <!-- SEO メタタグ -->
+  <meta name="description" content="介護保険制度におけるケアマネジメントツール「適切なケアマネジメント手法」の9テーマ全項目を統合した一覧表Webアプリケーション。">
+  
+  <!-- FontAwesome アイコンライブラリ -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- アプリケーションスタイルシート -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- 固定ヘッダーラッパー -->
+  <div class="sticky-header-wrapper">
+    <!-- アプリヘッダー (添付画像のロゴイラスト反映) -->
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="brand-container">
+          <div class="brand-icon-box">
+            <img src="images/logo.svg" alt="ケアプランAIロゴ" class="brand-logo-img">
+          </div>
+          <div class="brand-text-box">
+            <div class="brand-title">ケアプラン AI</div>
+            <div class="brand-subtitle">CARE MANAGEMENT ASSISTANT</div>
+          </div>
+        </div>
+        <h1 class="main-title">適切なケアマネジメント手法項目一覧表</h1>
+      </div>
+    </header>
+
+    <!-- 9シート切り替えタブバー (スクロール時画面上部固定) -->
+    <nav class="sheets-nav-container">
+      <div class="sheets-nav" id="sheetsNav">
+        <!-- JavaScriptで動的生成される9つのシートタブ -->
+      </div>
+    </nav>
+  </div>
+
+  <!-- メインレイアウト -->
+  <div class="main-layout">
+    <!-- メインコンテンツ領域（項目一覧表） -->
+    <main class="content-area">
+      <div class="sheet-content-wrapper">
+        <div class="sheet-header-box">
+          <h2 class="sheet-title" id="sheetTitle">基本ケア 項目一覧</h2>
+          <div class="sheet-note" id="sheetNote">
+            【概要版（項目一覧）】項目番号をタップ/クリックすると、詳細な支援概要、アセスメント・モニタリング項目が表示されます。
+          </div>
+        </div>
+
+        <!-- 概要版（2ページ目形式）テーブル -->
+        <div class="overview-table-container">
+          <table class="overview-table" id="overviewTable">
+            <thead id="overviewTableHead">
+              <!-- JSで動的にカラム名を切替生成 -->
+            </thead>
+            <tbody id="overviewTableBody">
+              <!-- JavaScriptで動的に生成される概要一覧行 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- 詳細パネル用オーバーレイ -->
+    <div class="detail-panel-overlay" id="detailPanelOverlay"></div>
+
+    <!-- 詳細スライドインパネル (サイド表示 / ドロワー) -->
+    <aside class="detail-panel" id="detailPanel" aria-label="項目詳細情報">
+      <!-- パネルヘッダー -->
+      <div class="panel-header">
+        <div class="panel-title-box">
+          <span class="panel-item-num" id="panelItemNum">項目 1</span>
+          <h3 class="panel-title" id="panelTitle">支援内容タイトル</h3>
+        </div>
+        <button class="close-panel-btn" id="closePanelBtn" title="閉じる (Esc)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- パネルボディ -->
+      <div class="panel-body">
+        <!-- 支援の概要、必要性 -->
+        <div class="detail-section">
+          <h4 class="detail-section-title">
+            <i class="fa-solid fa-file-lines"></i> 支援の概要、必要性
+          </h4>
+          <ul class="overview-text-list" id="panelOverviewText">
+            <!-- 動的生成 -->
+          </ul>
+        </div>
+
+        <!-- アセスメント / モニタリング項目 -->
+        <div class="detail-section">
+          <h4 class="detail-section-title">
+            <i class="fa-solid fa-list-check"></i> 関連するアセスメント/モニタリング項目等
+          </h4>
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>主なアセスメント/モニタリング項目</th>
+                <th style="width: 75px;">アセスメント</th>
+                <th style="width: 75px;">モニタリング</th>
+              </tr>
+            </thead>
+            <tbody id="panelDetailTableBody">
+              <!-- 動的生成 -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 相談すべき専門職 -->
+        <div class="detail-section">
+          <h4 class="detail-section-title">
+            <i class="fa-solid fa-user-doctor"></i> 相談すべき専門職
+          </h4>
+          <div class="professions-container" id="panelProfessions">
+            <!-- 動的生成 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- パネルフッター（閉じるボタン） -->
+      <div class="panel-footer">
+        <button class="bottom-close-btn" id="bottomCloseBtn">
+          <i class="fa-solid fa-arrow-left"></i> 一覧表に戻る
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- スクリプトの読み込み -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
