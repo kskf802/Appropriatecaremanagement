@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderOverviewTable(sheetData);
   }
 
-  // 3. 概要版テーブルの動的レンダリング
+  // 3. 概要版テーブルの動的レンダリング（全項目完全すみ分け・動的セル結合）
   function renderOverviewTable(sheetData) {
     overviewTableHead.innerHTML = '';
     overviewTableBody.innerHTML = '';
@@ -85,63 +85,184 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     overviewTableHead.appendChild(trHead);
 
+    // 全アイテムをフラットな行配列に展開
+    const flatRows = [];
     sheetData.categories.forEach(cat => {
-      const rowCount = cat.items.length;
+      cat.items.forEach(item => {
+        flatRows.push({
+          policy: (cat.policy || '').trim(),
+          major: (cat.major || '').trim(),
+          middle: (cat.middle || '').trim(),
+          small: (cat.small || '').trim(),
+          item: item
+        });
+      });
+    });
 
-      cat.items.forEach((item, index) => {
-        const tr = document.createElement('tr');
+    const totalRows = flatRows.length;
+    if (totalRows === 0) return;
 
-        if (index === 0) {
-          if (hasPolicy) {
-            const policyTd = document.createElement('td');
-            policyTd.className = 'policy-cell';
-            policyTd.rowSpan = rowCount;
-            policyTd.textContent = cat.policy || '';
-            tr.appendChild(policyTd);
+    // 各行各列の rowSpan を計算（0の場合は描画をスキップ）
+    const spans = flatRows.map(() => ({
+      policy: 0,
+      major: 0,
+      middle: 0,
+      small: 0
+    }));
+
+    if (hasPolicy) {
+      // 基本ケア: policy -> major -> middle -> item
+      let i = 0;
+      while (i < totalRows) {
+        const policyVal = flatRows[i].policy;
+        let policyEnd = i;
+        while (policyEnd < totalRows && flatRows[policyEnd].policy === policyVal) {
+          policyEnd++;
+        }
+        spans[i].policy = policyEnd - i;
+
+        // policy のグループ内で major をグループ化
+        let j = i;
+        while (j < policyEnd) {
+          const majorVal = flatRows[j].major;
+          let majorEnd = j;
+          while (majorEnd < policyEnd && flatRows[majorEnd].major === majorVal) {
+            majorEnd++;
+          }
+          spans[j].major = majorEnd - j;
+
+          // major のグループ内で middle をグループ化
+          let k = j;
+          while (k < majorEnd) {
+            const middleVal = flatRows[k].middle;
+            let middleEnd = k;
+            while (middleEnd < majorEnd && flatRows[middleEnd].middle === middleVal) {
+              middleEnd++;
+            }
+            spans[k].middle = middleEnd - k;
+            k = middleEnd;
           }
 
-          const majorTd = document.createElement('td');
-          majorTd.className = 'major-cell';
-          majorTd.rowSpan = rowCount;
-          majorTd.textContent = cat.major || '';
-          tr.appendChild(majorTd);
-
-          const middleTd = document.createElement('td');
-          middleTd.className = 'middle-cell';
-          middleTd.rowSpan = rowCount;
-          middleTd.textContent = cat.middle || '';
-          tr.appendChild(middleTd);
-
-          if (!hasPolicy) {
-            const smallTd = document.createElement('td');
-            smallTd.className = 'small-cell';
-            smallTd.rowSpan = rowCount;
-            smallTd.textContent = cat.small || '';
-            tr.appendChild(smallTd);
-          }
+          j = majorEnd;
         }
 
-        const itemTd = document.createElement('td');
-        itemTd.className = 'items-cell';
+        i = policyEnd;
+      }
+    } else {
+      // 疾患別ケア: major -> middle -> small -> item
+      let i = 0;
+      while (i < totalRows) {
+        const majorVal = flatRows[i].major;
+        let majorEnd = i;
+        while (majorEnd < totalRows && flatRows[majorEnd].major === majorVal) {
+          majorEnd++;
+        }
+        spans[i].major = majorEnd - i;
 
-        const btn = document.createElement('button');
-        btn.className = `item-btn ${selectedItemId === item.id ? 'selected' : ''}`;
-        btn.dataset.itemId = item.id;
-        btn.innerHTML = `
-          <span class="item-id-badge">${item.id}</span>
-          <span class="item-btn-text">${item.title}</span>
-          <i class="fa-solid fa-chevron-right item-btn-arrow"></i>
-        `;
+        // major のグループ内で middle をグループ化
+        let j = i;
+        while (j < majorEnd) {
+          const middleVal = flatRows[j].middle;
+          let middleEnd = j;
+          while (middleEnd < majorEnd && flatRows[middleEnd].middle === middleVal) {
+            middleEnd++;
+          }
+          spans[j].middle = middleEnd - j;
 
-        btn.addEventListener('click', () => {
-          openDetailPanel(sheetData, item.id);
-        });
+          // middle のグループ内で small をグループ化
+          let k = j;
+          while (k < middleEnd) {
+            const smallVal = flatRows[k].small;
+            let smallEnd = k;
+            while (smallEnd < middleEnd && flatRows[smallEnd].small === smallVal) {
+              smallEnd++;
+            }
+            spans[k].small = smallEnd - k;
+            k = smallEnd;
+          }
 
-        itemTd.appendChild(btn);
-        tr.appendChild(itemTd);
+          j = middleEnd;
+        }
 
-        overviewTableBody.appendChild(tr);
+        i = majorEnd;
+      }
+    }
+
+    // テーブル行・セルの動的構築
+    flatRows.forEach((row, idx) => {
+      const tr = document.createElement('tr');
+      const span = spans[idx];
+
+      if (hasPolicy) {
+        if (span.policy > 0) {
+          const policyTd = document.createElement('td');
+          policyTd.className = 'policy-cell';
+          policyTd.rowSpan = span.policy;
+          policyTd.textContent = row.policy;
+          tr.appendChild(policyTd);
+        }
+
+        if (span.major > 0) {
+          const majorTd = document.createElement('td');
+          majorTd.className = 'major-cell';
+          majorTd.rowSpan = span.major;
+          majorTd.textContent = row.major;
+          tr.appendChild(majorTd);
+        }
+
+        if (span.middle > 0) {
+          const middleTd = document.createElement('td');
+          middleTd.className = 'middle-cell';
+          middleTd.rowSpan = span.middle;
+          middleTd.textContent = row.middle;
+          tr.appendChild(middleTd);
+        }
+      } else {
+        if (span.major > 0) {
+          const majorTd = document.createElement('td');
+          majorTd.className = 'major-cell';
+          majorTd.rowSpan = span.major;
+          majorTd.textContent = row.major;
+          tr.appendChild(majorTd);
+        }
+
+        if (span.middle > 0) {
+          const middleTd = document.createElement('td');
+          middleTd.className = 'middle-cell';
+          middleTd.rowSpan = span.middle;
+          middleTd.textContent = row.middle;
+          tr.appendChild(middleTd);
+        }
+
+        if (span.small > 0) {
+          const smallTd = document.createElement('td');
+          smallTd.className = 'small-cell';
+          smallTd.rowSpan = span.small;
+          smallTd.textContent = row.small;
+          tr.appendChild(smallTd);
+        }
+      }
+
+      const itemTd = document.createElement('td');
+      itemTd.className = 'items-cell';
+
+      const btn = document.createElement('button');
+      btn.className = `item-btn ${selectedItemId === row.item.id ? 'selected' : ''}`;
+      btn.dataset.itemId = row.item.id;
+      btn.innerHTML = `
+        <span class="item-id-badge">${row.item.id}</span>
+        <span class="item-btn-text">${row.item.title}</span>
+        <i class="fa-solid fa-chevron-right item-btn-arrow"></i>
+      `;
+
+      btn.addEventListener('click', () => {
+        openDetailPanel(sheetData, row.item.id);
       });
+
+      itemTd.appendChild(btn);
+      tr.appendChild(itemTd);
+
+      overviewTableBody.appendChild(tr);
     });
   }
 
@@ -271,8 +392,37 @@ document.addEventListener('DOMContentLoaded', () => {
   detailPanelOverlay.addEventListener('click', closeDetailPanel);
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeDetailPanel();
+    if (e.key === 'Escape') {
+      closeDetailPanel();
+      closeInfoModal();
+    }
   });
+
+  // 6. 利用上の注意・免責事項モーダルの制御
+  const openInfoBtn = document.getElementById('openInfoBtn');
+  const footerInfoBtn = document.getElementById('footerInfoBtn');
+  const infoModalOverlay = document.getElementById('infoModalOverlay');
+  const infoModalDialog = document.getElementById('infoModalDialog');
+  const closeInfoModalBtn = document.getElementById('closeInfoModalBtn');
+  const acceptInfoModalBtn = document.getElementById('acceptInfoModalBtn');
+
+  function openInfoModal() {
+    infoModalOverlay.classList.add('active');
+    infoModalDialog.classList.add('active');
+    infoModalDialog.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeInfoModal() {
+    infoModalOverlay.classList.remove('active');
+    infoModalDialog.classList.remove('active');
+    infoModalDialog.setAttribute('aria-hidden', 'true');
+  }
+
+  if (openInfoBtn) openInfoBtn.addEventListener('click', openInfoModal);
+  if (footerInfoBtn) footerInfoBtn.addEventListener('click', openInfoModal);
+  if (closeInfoModalBtn) closeInfoModalBtn.addEventListener('click', closeInfoModal);
+  if (acceptInfoModalBtn) acceptInfoModalBtn.addEventListener('click', closeInfoModal);
+  if (infoModalOverlay) infoModalOverlay.addEventListener('click', closeInfoModal);
 
   // 初期化実行
   initNav();

@@ -31,6 +31,9 @@
           </div>
         </div>
         <h1 class="main-title">適切なケアマネジメント手法項目一覧表</h1>
+        <button class="header-info-btn" id="openInfoBtn" title="利用上の注意・免責事項・出典表示">
+          <i class="fa-solid fa-circle-info"></i> <span>利用上の注意・免責事項</span>
+        </button>
       </div>
     </header>
 
@@ -133,6 +136,66 @@
         </button>
       </div>
     </aside>
+  </div>
+
+  <!-- 常時表示フッター -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <div class="footer-copyright">
+        出典：厚生労働省「適切なケアマネジメント手法」（委託：株式会社日本総合研究所）
+      </div>
+      <div class="footer-disclaimer">
+        ※本ツールは個人の開発による非公式の業務支援ツールです。制度・手法の公式情報および利用に関する詳細は<button class="footer-link-btn" id="footerInfoBtn">利用上の注意・免責事項</button>をご確認ください。
+      </div>
+    </div>
+  </footer>
+
+  <!-- 利用上の注意・免責事項モーダル -->
+  <div class="info-modal-overlay" id="infoModalOverlay"></div>
+  <div class="info-modal-dialog" id="infoModalDialog" role="dialog" aria-labelledby="infoModalTitle" aria-hidden="true">
+    <div class="info-modal-header">
+      <h3 class="info-modal-title" id="infoModalTitle">
+        <i class="fa-solid fa-shield-halved"></i> 利用上の注意・免責事項・出典表示
+      </h3>
+      <button class="info-modal-close-btn" id="closeInfoModalBtn" title="閉じる (Esc)">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="info-modal-body">
+      <section class="info-section">
+        <h4><i class="fa-solid fa-book"></i> 1. 出典・原典について</h4>
+        <p>本Webアプリケーションは、厚生労働省が公表および普及を推進する「適切なケアマネジメント手法」（委託事業者：株式会社日本総合研究所）の手引きおよび各項目一覧表に基づいて作成されています。</p>
+      </section>
+
+      <section class="info-section">
+        <h4><i class="fa-solid fa-circle-exclamation"></i> 2. 本ツールの位置づけ（非公式の明記）</h4>
+        <p>本ツールは、ケアマネジャーおよび介護従事者の現場における閲覧性・検索性向上を目的として制作された<strong>個人の開発による非公式サポートツール</strong>です。厚生労働省および株式会社日本総合研究所が直接提供・公認・保証するものではありません。</p>
+      </section>
+
+      <section class="info-section">
+        <h4><i class="fa-solid fa-pen-to-square"></i> 3. データの再構成・改変について</h4>
+        <p>本ツールでは、スマートフォンやPC上での画面表示および情報検索の最適化を図るため、原本PDFのテキストおよび階層構造（基本方針・大項目・中項目・小項目）を独自にデジタル化・レイアウト再構成を行っています。</p>
+      </section>
+
+      <section class="info-section">
+        <h4><i class="fa-solid fa-scale-balanced"></i> 4. 免責事項</h4>
+        <ul>
+          <li>本ツールの掲載情報には細心の注意を払っておりますが、データの正確性、完全性、有用性を保証するものではありません。</li>
+          <li>実際のケアプラン作成やケアマネジメント実務にあたっては、必ず厚生労働省の公式手引き・ガイドラインおよび自治体の定めに従い、専門職としての総合的な判断を行ってください。</li>
+          <li>本ツールの利用および利用不能により生じた直接的・間接的な損害・トラブル等について、開発者は一切の責任を負いかねます。</li>
+        </ul>
+      </section>
+
+      <section class="info-section">
+        <h4><i class="fa-solid fa-copyright"></i> 5. 著作権・権利関係</h4>
+        <p>「適切なケアマネジメント手法」に関する著作権その他の権利は、厚生労働省および株式会社日本総合研究所等、原権利者に帰属します。</p>
+      </section>
+    </div>
+    <div class="info-modal-footer">
+      <button class="info-modal-accept-btn" id="acceptInfoModalBtn">
+        確認しました
+      </button>
+    </div>
   </div>
 
   <!-- スクリプトの読み込み -->
